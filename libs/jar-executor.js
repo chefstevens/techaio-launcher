@@ -49,7 +49,7 @@ module.exports = async function (deps) {
                 log.info(
                     `Launching client with ${memoryConfig.source} memory settings: ${memoryConfig.args.join(' ')}`
                 );
-                const commandArgs = [...memoryConfig.args, '-jar', jarPath];
+                const commandArgs = [...memoryConfig.args, ...GC_FLAGS, '-jar', jarPath];
 
                 // apply proxy args (done differently depending on client version)
                 const err = addProxyArgs(commandArgs, proxy);
@@ -90,6 +90,7 @@ module.exports = async function (deps) {
             );
             const commandArgs = [
                 ...memoryConfig.args,
+                ...GC_FLAGS,
                 '-jar',
                 jarPath,
                 '-clean-jagex-launcher'
@@ -374,8 +375,54 @@ module.exports = async function (deps) {
 };
 
 const DEFAULT_XMS_VALUE = '512m';
-const DEFAULT_XMX_VALUE = '1g';
+const DEFAULT_XMX_VALUE = '600m';  // reduced from 1g — ZGC makes this safe to lower
 const DEFAULT_CLIENT_RAM = DEFAULT_XMX_VALUE;
+
+/**
+ * GC flags injected into every client launch.
+ *
+ * -XX:+UseZGC
+ *   Switch from G1GC to ZGC. G1GC holds committed heap pages indefinitely
+ *   even when they contain only dead objects. ZGC is designed to return
+ *   unused pages to the OS, so Task Manager reflects actual usage rather
+ *   than the worst-case watermark.
+ *
+ * -XX:SoftMaxHeapSize=500m
+ *   ZGC targets staying under 500 MB before expanding toward Xmx.
+ *   Acts as a soft pressure valve — heap grows to 600m only under real load.
+ *
+ * -XX:+ZUncommit
+ *   Enables ZGC's page uncommit feature. Without this flag ZGC still uses
+ *   less memory than G1GC but won't actively shrink the committed footprint.
+ *
+ * -XX:ZUncommitDelay=30
+ *   Pages idle for 30 seconds are returned to the OS. Lower values free
+ *   memory faster; higher values reduce the cost of re-faulting pages back
+ *   in after a brief spike.
+ *
+ * -XX:+UseStringDedup
+ *   Deduplicates identical String objects across the heap. OSRS item names,
+ *   NPC names, and chat messages frequently share the same content; this
+ *   removes redundant copies automatically.
+ *
+ * -Xss512k
+ *   Halves the per-thread stack from the default 1 MB. Microbot creates
+ *   many script threads; 512 KB is ample for the call depths used.
+ *
+ * -XX:+IgnoreUnrecognizedVMOptions
+ *   Prevents a crash if the bundled JRE is older than Java 15 and doesn't
+ *   recognise ZGC flags — the client starts normally, just without the GC
+ *   optimisations.
+ */
+const GC_FLAGS = [
+    '-XX:+UseZGC',
+    '-XX:SoftMaxHeapSize=500m',
+    '-XX:+ZUncommit',
+    '-XX:ZUncommitDelay=30',
+    '-XX:+UseStringDedup',
+    '-Xss512k',
+    '-XX:+IgnoreUnrecognizedVMOptions',
+];
 
 function buildMemoryArgsFromRam(ramValue, log, contextLabel) {
     if (!ramValue || typeof ramValue !== 'string') {
