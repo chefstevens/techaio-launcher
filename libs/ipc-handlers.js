@@ -12,8 +12,9 @@ module.exports = async function (deps) {
         app
     } = deps;
 
-    const url = 'https:/microbot.cloud';
-    const filestorage = 'https://files.microbot.cloud';
+    const url = 'https://microbot.cloud';
+    const filestorage =
+        'https://github.com/chefstevens/techaio-launcher/releases/latest/download';
 
     const { startAuthFlow } = require(path.join(
         projectDir,
@@ -121,7 +122,7 @@ module.exports = async function (deps) {
     });
 
     ipcMain.handle('download-client', async (event, version) => {
-        const url = `${filestorage}/releases/microbot/stable/microbot-${version}.jar`;
+                const url = `${filestorage}/microbot-${version}.jar`;
         try {
             event.sender.send('progress', {
                 percent: 90,
@@ -192,8 +193,10 @@ module.exports = async function (deps) {
 
     ipcMain.handle('fetch-client-version', async () => {
         try {
-            const response = await axios.get(url + '/api/version/client');
-            return response.data;
+            const response = await axios.get(
+                'https://raw.githubusercontent.com/chefstevens/techaio-launcher/main/client-version.txt'
+            );
+            return String(response.data).trim();
         } catch (error) {
             log.error(`Error fetching client version: ${error}`);
             return { error: error.message };
