@@ -1,21 +1,20 @@
 {
-  "name": "microbot-launcher",
-  "version": "3.2.8",
-  "description": "Launcher for the microbot client",
+  "name": "techaio-launcher",
+  "version": "0.1.0",
+  "description": "TechAIO launcher based on open-source Microbot Launcher",
   "main": "main.js",
   "scripts": {
     "dev": "cross-env DEBUG=true electron .",
-    "dev:mock": "cross-env DEBUG=true MOCK_AUTH=1 MOCK_USERS='demo@microbot.com:DemoPassword123,test@example.com:TestPassword123' electron .",
+    "dev:mock": "cross-env DEBUG=true MOCK_AUTH=1 electron .",
     "start": "electron-forge start",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "release": "electron-builder --publish always",
+    "build:win": "electron-builder --win nsis --publish never",
+    "release": "electron-builder --win nsis --publish always",
     "linux": "electron-builder --linux",
     "mac": "electron-builder --mac"
   },
-  "author": "Mocrosoft",
-  "license": "ISC",
+  "author": "chefstevens",
+  "license": "GPL-3.0",
   "devDependencies": {
     "@electron-forge/cli": "^7.8.1",
     "@electron-forge/maker-deb": "^7.8.1",
@@ -43,9 +42,9 @@
     "update-electron-app": "^3.0.0"
   },
   "build": {
-    "asar": "true",
-    "appId": "com.microbot.launcher",
-    "productName": "Microbot Launcher",
+    "asar": true,
+    "appId": "com.techaio.launcher",
+    "productName": "TechAIO Launcher",
     "files": [
       "main.js",
       "renderer.js",
@@ -63,7 +62,8 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "images/microbot_transparent.ico"
+      "icon": "images/microbot_transparent.ico",
+      "signAndEditExecutable": false
     },
     "mac": {
       "category": "public.app-category.utilities",
@@ -96,10 +96,7 @@
       ]
     },
     "linux": {
-      "target": [
-        "AppImage",
-        "snap"
-      ],
+      "target": ["AppImage", "snap"],
       "icon": "images/microbot_transparent.png",
       "category": "Game"
     },
@@ -108,11 +105,12 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Microbot Launcher"
+      "shortcutName": "TechAIO Launcher"
     },
     "publish": {
-      "provider": "generic",
-      "url": "https://files.microbot.cloud/releases/microbot-launcher/"
+      "provider": "github",
+      "owner": "chefstevens",
+      "repo": "techaio-launcher"
     }
   },
   "optionalDependencies": {
