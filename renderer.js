@@ -659,6 +659,7 @@ async function initializeLauncher() {
 window.addEventListener('load', async () => {
     setupAuthUI();
     await refreshAuthStatus();
+    setupLicenseUI();
 });
 
 function populateSelectElement(selectId, options) {
@@ -1977,4 +1978,36 @@ function formatRamLabel(value) {
     const [, amount, unit] = match;
     const unitLabel = unit.toLowerCase() === 'g' ? 'GB' : 'MB';
     return `${amount} ${unitLabel}`;
+}
+
+
+function paintLicense(row) {
+    const text = (row && row.valid)
+        ? ('All paid plugins: ' + row.daysLeft + ' days left')
+        : ('Paid plugins: ' + ((row && row.error) || 'locked — paste a key'));
+    const el = document.getElementById('license-status');
+    if (el) el.textContent = text;
+    const hero = document.getElementById('license-hero-status');
+    if (hero) hero.textContent = text;
+    document.title = (row && row.valid)
+        ? ('TechBot Launcher — ' + row.daysLeft + ' days left')
+        : 'TechBot Launcher';
+}
+
+async function setupLicenseUI() {
+    const save = document.getElementById('license-save');
+    const input = document.getElementById('license-key');
+    const saveHero = document.getElementById('license-save-hero');
+    const inputHero = document.getElementById('license-key-hero');
+    if (window.electron && window.electron.licenseCheck) {
+        paintLicense(await window.electron.licenseCheck());
+    }
+    async function activateFrom(box) {
+        const key = (box && box.value || '').trim();
+        if (!key) return;
+        const row = await window.electron.licenseActivate(key);
+        paintLicense(row);
+    }
+    if (save && input) save.addEventListener('click', () => activateFrom(input));
+    if (saveHero && inputHero) saveHero.addEventListener('click', () => activateFrom(inputHero));
 }

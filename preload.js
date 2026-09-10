@@ -74,6 +74,8 @@ contextBridge.exposeInMainWorld('electron', {
     updateClientJarTTL: (version) =>
         ipcRenderer.invoke('update-client-jar-ttl', version),
     refreshAccounts: () => ipcRenderer.invoke('refresh-accounts'),
+    licenseCheck: () => ipcRenderer.invoke('license:check'),
+    licenseActivate: (key) => ipcRenderer.invoke('license:activate', key),
     auth: {
         signup: (credentials) => ipcRenderer.invoke('auth:signup', credentials),
         signin: (credentials) => ipcRenderer.invoke('auth:signin', credentials),

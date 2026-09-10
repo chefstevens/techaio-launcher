@@ -1023,3 +1023,34 @@ button.hamburger {
 .app-menu .submenu-item {
     font-size: 12px;
 }
+.license-panel {
+    margin: 8px 0 12px;
+    padding: 8px;
+    background: #12141c;
+    border-radius: 8px;
+    font-size: 12px;
+}
+#license-status { margin-bottom: 6px; color: #9fef9f; }
+#license-key {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 6px;
+    padding: 6px;
+}
+#license-save { width: 100%; }
+
+.license-hero {
+    padding: 16px 20px;
+    background: #12141c;
+    border-bottom: 1px solid #2a2e3d;
+}
+#license-hero-status {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #f0c14b;
+}
+.license-hero-row { display: flex; gap: 8px; }
+#license-key-hero { flex: 1; padding: 8px 10px; font-size: 14px; }
+#license-save-hero { padding: 8px 16px; }
+#license-hero-sub { margin-top: 8px; font-size: 12px; color: #bbb; }

@@ -122,7 +122,7 @@ module.exports = async function (deps) {
     });
 
     ipcMain.handle('download-client', async (event, version) => {
-                const url = `${filestorage}/microbot-${version}.jar`;
+        const url = `${filestorage}/microbot-${version}.jar`;
         try {
             event.sender.send('progress', {
                 percent: 90,
@@ -386,4 +386,21 @@ module.exports = async function (deps) {
         ));
         return await updateClientJarTTL(version);
     });
+
+    const license = require(path.join(projectDir, 'libs', 'license.js'));
+    ipcMain.handle('license:check', async () => {
+        try {
+            return await license.check(app);
+        } catch (e) {
+            return { valid: false, error: e.message };
+        }
+    });
+    ipcMain.handle('license:activate', async (event, key) => {
+        try {
+            return await license.activate(app, String(key || '').trim());
+        } catch (e) {
+            return { valid: false, error: e.message };
+        }
+    });
 };
+
